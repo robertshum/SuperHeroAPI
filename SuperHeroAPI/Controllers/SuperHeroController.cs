@@ -59,6 +59,7 @@ namespace SuperHeroAPI.Controllers
             dbHero.FirstName = requestHero.FirstName;
             dbHero.LastName = requestHero.LastName;
             dbHero.Place = requestHero.Place;
+            dbHero.Description = requestHero.Description;
 
             //persist changes
             await _context.SaveChangesAsync();
