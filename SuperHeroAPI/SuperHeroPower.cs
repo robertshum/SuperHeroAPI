@@ -9,6 +9,5 @@
         public required Power Power { get; set; }
         public int SuperHeroId { get; set; }
         public required SuperHero SuperHero { get; set; }
-
     }
 }
