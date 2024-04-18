@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SuperHeroAPI.Data;
 
@@ -10,9 +11,11 @@ using SuperHeroAPI.Data;
 namespace SuperHeroAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240418074623_AddNewPowerTable")]
+    partial class AddNewPowerTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,43 +76,6 @@ namespace SuperHeroAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SuperHeros");
-                });
-
-            modelBuilder.Entity("SuperHeroAPI.SuperHeroPower", b =>
-                {
-                    b.Property<int>("SuperHeroId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PowerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.HasKey("SuperHeroId", "PowerId");
-
-                    b.HasIndex("PowerId");
-
-                    b.ToTable("SuperHeroPowers");
-                });
-
-            modelBuilder.Entity("SuperHeroAPI.SuperHeroPower", b =>
-                {
-                    b.HasOne("SuperHeroAPI.Power", "Power")
-                        .WithMany()
-                        .HasForeignKey("PowerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SuperHeroAPI.SuperHero", "SuperHero")
-                        .WithMany()
-                        .HasForeignKey("SuperHeroId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Power");
-
-                    b.Navigation("SuperHero");
                 });
 #pragma warning restore 612, 618
         }
