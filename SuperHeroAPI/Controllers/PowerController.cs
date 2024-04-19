@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SuperHeroAPI.Exceptions;
 using SuperHeroAPI.ModelViews;
+using SuperHeroAPI.Services;
 
 namespace SuperHeroAPI.Controllers
 {
@@ -8,22 +10,25 @@ namespace SuperHeroAPI.Controllers
     public class PowerController : ControllerBase
     {
         private readonly DataContext _context;
+        private readonly PowerService _powerService;
 
-        public PowerController(DataContext context)
+        public PowerController(PowerService powerService, DataContext context)
         {
-            _context = context;
+             _context = context;
+            _powerService = powerService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Power>>> Get()
         {
-            return Ok(await _context.Powers.ToListAsync());
+            var powers = await _powerService.GetAllPowersAsync();
+            return Ok(powers);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Power>> Get(int id)
         {
-            var power = await _context.Powers.FindAsync(id);
+            var power = await _powerService.GetPower(id);
             if (power == null)
             {
                 return BadRequest("Power not found.");
@@ -34,52 +39,34 @@ namespace SuperHeroAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<List<Power>>> AddPower([FromBody] PowerModelView powerModelView)
         {
-            var power = new Power
-            {
-                Tag = powerModelView.Tag,
-                Description = powerModelView.Description
-            };
-
-            _context.Powers.Add(power);
-
-            //persist changes
-            await _context.SaveChangesAsync();
-
-            //refetch
-            return Ok(await _context.Powers.ToListAsync());
+            return Ok(await _powerService.AddPower(powerModelView));
         }
 
         [HttpPut]
         public async Task<ActionResult<List<Power>>> Update([FromBody] EditPowerModelView editPower)
         {
-            var dbPower = await _context.Powers.FindAsync(editPower.Id);
-            if (dbPower == null)
+            try
             {
-                return BadRequest("Power not found.");
+                var powers = await _powerService.Update(editPower);
+                return Ok(powers);
+            } catch (PowerNotFoundException ex) 
+            {
+                return BadRequest(ex.Message);
             }
-
-            dbPower.Tag = editPower.Tag;
-            dbPower.Description = editPower.Description;
-
-            //persist changes
-            await _context.SaveChangesAsync();
-
-            return Ok(await _context.Powers.ToListAsync());
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<List<Power>>> Delete(int id)
         {
-            var power = await _context.Powers.FindAsync(id);
-            if (power == null)
+            try
             {
-                return BadRequest("Power not found.");
+                var powers = await _powerService.Delete(id);
+                return Ok(powers);
             }
-
-            _context.Powers.Remove(power);
-            await _context.SaveChangesAsync();
-
-            return Ok(await _context.Powers.ToListAsync());
+            catch (PowerNotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
