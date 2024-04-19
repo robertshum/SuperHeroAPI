@@ -9,7 +9,5 @@
         public string Description {  get; set; } = string.Empty;
         public string Place { get; set; } = string.Empty;
         public virtual ICollection<Power> Powers { get; set; } = new List<Power>();
-        //// Navigation property for the join table SuperHeroPower
-        //public virtual ICollection<SuperHeroPower> SuperHeroPowers { get; set; } = new List<SuperHeroPower>();
     }
 }
