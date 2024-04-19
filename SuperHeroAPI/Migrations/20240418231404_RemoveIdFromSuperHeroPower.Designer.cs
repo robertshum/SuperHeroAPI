@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SuperHeroAPI.Data;
 
@@ -10,9 +11,11 @@ using SuperHeroAPI.Data;
 namespace SuperHeroAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240418231404_RemoveIdFromSuperHeroPower")]
+    partial class RemoveIdFromSuperHeroPower
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,6 +76,50 @@ namespace SuperHeroAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SuperHeroes");
+                });
+
+            modelBuilder.Entity("SuperHeroAPI.SuperHeroPower", b =>
+                {
+                    b.Property<int>("SuperHeroId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PowerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SuperHeroId", "PowerId");
+
+                    b.HasIndex("PowerId");
+
+                    b.ToTable("SuperHeroPowers");
+                });
+
+            modelBuilder.Entity("SuperHeroAPI.SuperHeroPower", b =>
+                {
+                    b.HasOne("SuperHeroAPI.Power", "Power")
+                        .WithMany("SuperHeroPowers")
+                        .HasForeignKey("PowerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SuperHeroAPI.SuperHero", "SuperHero")
+                        .WithMany("SuperHeroPowers")
+                        .HasForeignKey("SuperHeroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Power");
+
+                    b.Navigation("SuperHero");
+                });
+
+            modelBuilder.Entity("SuperHeroAPI.Power", b =>
+                {
+                    b.Navigation("SuperHeroPowers");
+                });
+
+            modelBuilder.Entity("SuperHeroAPI.SuperHero", b =>
+                {
+                    b.Navigation("SuperHeroPowers");
                 });
 #pragma warning restore 612, 618
         }

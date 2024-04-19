@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SuperHeroAPI.ModelViews;
 
 namespace SuperHeroAPI.Controllers
 {
@@ -34,10 +35,35 @@ namespace SuperHeroAPI.Controllers
         }
 
         [HttpPost]
-        //assumes this comes from the body, so we don't need the [FromBody] in front of SuperHero
-        public async Task<ActionResult<List<SuperHero>>> AddHero(SuperHero hero)
+        public async Task<ActionResult<List<SuperHero>>> AddHero([FromBody] SuperHeroModelView heroView)
         {
-            _context.SuperHeroes.Add(hero);
+            //base fields for hero
+            var newHero = new SuperHero
+            {
+                Name = heroView.Name,
+                FirstName = heroView.FirstName,
+                LastName = heroView.LastName,
+                Description = heroView.Description,
+                Place = heroView.Place,
+            };
+
+            //get the powers associated with the hero
+            var powers = await _context.Powers.Where(p=> heroView.PowerIds.Contains(p.Id)).ToListAsync();
+
+            //create superheropower instance to rep. the association
+            var superHeroPowers = powers.Select(power => new SuperHeroPower
+            {
+                SuperHero = newHero,
+                Power = power
+            }).ToList();
+
+            //finally set the list to the instance of newHero
+            foreach(var superHeroPower in superHeroPowers)
+            {
+                //newHero.SuperHeroPowers.Add(superHeroPower);
+            }
+            
+            _context.SuperHeroes.Add(newHero);
 
             //we need to persist these changes
             await _context.SaveChangesAsync();
@@ -66,6 +92,8 @@ namespace SuperHeroAPI.Controllers
 
             return Ok(await _context.SuperHeroes.ToListAsync());
         }
+
+
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<List<SuperHero>>> Delete(int id)
