@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SuperHeroAPI.Data;
 
@@ -10,9 +11,11 @@ using SuperHeroAPI.Data;
 namespace SuperHeroAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240419011448_SimplePowerAndHeroRel")]
+    partial class SimplePowerAndHeroRel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,15 +26,15 @@ namespace SuperHeroAPI.Migrations
 
             modelBuilder.Entity("PowerSuperHero", b =>
                 {
-                    b.Property<int>("PowersId")
-                        .HasColumnType("int");
-
                     b.Property<int>("SuperHeroesId")
                         .HasColumnType("int");
 
-                    b.HasKey("PowersId", "SuperHeroesId");
+                    b.Property<int>("SuperHeroesId1")
+                        .HasColumnType("int");
 
-                    b.HasIndex("SuperHeroesId");
+                    b.HasKey("SuperHeroesId", "SuperHeroesId1");
+
+                    b.HasIndex("SuperHeroesId1");
 
                     b.ToTable("PowerSuperHero");
                 });
@@ -90,19 +93,63 @@ namespace SuperHeroAPI.Migrations
                     b.ToTable("SuperHeroes");
                 });
 
+            modelBuilder.Entity("SuperHeroAPI.SuperHeroPower", b =>
+                {
+                    b.Property<int>("SuperHeroId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PowerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SuperHeroId", "PowerId");
+
+                    b.HasIndex("PowerId");
+
+                    b.ToTable("SuperHeroPowers");
+                });
+
             modelBuilder.Entity("PowerSuperHero", b =>
                 {
                     b.HasOne("SuperHeroAPI.Power", null)
                         .WithMany()
-                        .HasForeignKey("PowersId")
+                        .HasForeignKey("SuperHeroesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SuperHeroAPI.SuperHero", null)
                         .WithMany()
-                        .HasForeignKey("SuperHeroesId")
+                        .HasForeignKey("SuperHeroesId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SuperHeroAPI.SuperHeroPower", b =>
+                {
+                    b.HasOne("SuperHeroAPI.Power", "Power")
+                        .WithMany("SuperHeroPowers")
+                        .HasForeignKey("PowerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SuperHeroAPI.SuperHero", "SuperHero")
+                        .WithMany("SuperHeroPowers")
+                        .HasForeignKey("SuperHeroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Power");
+
+                    b.Navigation("SuperHero");
+                });
+
+            modelBuilder.Entity("SuperHeroAPI.Power", b =>
+                {
+                    b.Navigation("SuperHeroPowers");
+                });
+
+            modelBuilder.Entity("SuperHeroAPI.SuperHero", b =>
+                {
+                    b.Navigation("SuperHeroPowers");
                 });
 #pragma warning restore 612, 618
         }

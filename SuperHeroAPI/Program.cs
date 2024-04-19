@@ -1,10 +1,14 @@
 global using SuperHeroAPI.Data;
 global using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+});
 
 // Add db context for sql server
 builder.Services.AddDbContext<DataContext>(options =>

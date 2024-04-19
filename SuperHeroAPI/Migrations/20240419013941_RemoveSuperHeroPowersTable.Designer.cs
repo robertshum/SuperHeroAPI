@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SuperHeroAPI.Data;
 
@@ -10,9 +11,11 @@ using SuperHeroAPI.Data;
 namespace SuperHeroAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240419013941_RemoveSuperHeroPowersTable")]
+    partial class RemoveSuperHeroPowersTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -20,21 +23,6 @@ namespace SuperHeroAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("PowerSuperHero", b =>
-                {
-                    b.Property<int>("PowersId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SuperHeroesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PowersId", "SuperHeroesId");
-
-                    b.HasIndex("SuperHeroesId");
-
-                    b.ToTable("PowerSuperHero");
-                });
 
             modelBuilder.Entity("SuperHeroAPI.Power", b =>
                 {
@@ -88,21 +76,6 @@ namespace SuperHeroAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SuperHeroes");
-                });
-
-            modelBuilder.Entity("PowerSuperHero", b =>
-                {
-                    b.HasOne("SuperHeroAPI.Power", null)
-                        .WithMany()
-                        .HasForeignKey("PowersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SuperHeroAPI.SuperHero", null)
-                        .WithMany()
-                        .HasForeignKey("SuperHeroesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
