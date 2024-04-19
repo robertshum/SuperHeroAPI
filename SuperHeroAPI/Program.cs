@@ -1,6 +1,7 @@
 global using SuperHeroAPI.Data;
 global using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using SuperHeroAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,10 @@ builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+//add services context
+builder.Services.AddScoped<PowerService>();
+builder.Services.AddScoped<SuperHeroService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

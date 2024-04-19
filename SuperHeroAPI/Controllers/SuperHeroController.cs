@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SuperHeroAPI.Exceptions;
 using SuperHeroAPI.ModelViews;
+using SuperHeroAPI.Services;
 
 namespace SuperHeroAPI.Controllers
 {
@@ -8,135 +9,67 @@ namespace SuperHeroAPI.Controllers
     [ApiController]
     public class SuperHeroController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly SuperHeroService _heroService;
 
-        public SuperHeroController(DataContext context)
+        public SuperHeroController(SuperHeroService superHeroService)
         {
-            _context = context;
+            _heroService = superHeroService;
         }
 
         [HttpGet]
         //Must return a specific type and not a interface
         public async Task<ActionResult<List<SuperHero>>> Get()
         {
-            return Ok(await _context.SuperHeroes.Include(h => h.Powers).ToListAsync());
+            return Ok(await _heroService.GetAllSuperHeroesAsync());
         }
 
         [HttpGet("{id}")]
         //Must return a specific type and not a interface
         public async Task<ActionResult<SuperHero>> Get(int id)
         {
-            var hero = await _context.SuperHeroes
-                .Where(hero => hero.Id == id)
-                .Include(hero => hero.Powers)
-                .FirstOrDefaultAsync();
-
-            if (hero == null)
+            try
             {
-                return BadRequest("Hero/Villan not found.");
+                var hero = await _heroService.Get(id);
+                return Ok(hero);
             }
-            return Ok(hero);
+            catch (SuperHeroNotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult<List<SuperHero>>> AddHero([FromBody] SuperHeroModelView heroView)
         {
-            //base fields for hero
-            var newHero = new SuperHero
-            {
-                Name = heroView.Name,
-                FirstName = heroView.FirstName,
-                LastName = heroView.LastName,
-                Description = heroView.Description,
-                Place = heroView.Place,
-            };
-
-            //get the powers associated with the hero
-            var powers = await _context.Powers.Where(p => heroView.PowerIds.Contains(p.Id)).ToListAsync();
-
-            //add the powers!
-            foreach (var power in powers)
-            {
-                newHero.Powers.Add(power);
-            }
-
-            _context.SuperHeroes.Add(newHero);
-
-            //we need to persist these changes
-            await _context.SaveChangesAsync();
-
-            //we need to re-fetch these changes
-            return Ok(await _context.SuperHeroes.ToListAsync());
+            return await _heroService.AddHero(heroView);
         }
 
         [HttpPut]
         public async Task<ActionResult<List<SuperHero>>> UpdateHero([FromBody] EditSuperHeroModelView requestHero)
         {
-            var dbHero = await _context.SuperHeroes
-                .Where(hero => hero.Id == requestHero.Id)
-                .Include(hero => hero.Powers)
-                .FirstOrDefaultAsync();
-
-            if (dbHero == null)
+            try
             {
-                return BadRequest("Hero/Villan not found.");
+                var heroes = await _heroService.UpdateHero(requestHero);
+                return Ok(heroes);
             }
-
-            //get the 'new' powers associated with the hero
-            var powers = await _context.Powers.Where(p => requestHero.PowerIds.Contains(p.Id)).ToListAsync();
-
-            //Powers to add
-            var newPowersToAdd = new List<Power>();
-            foreach (var power in powers)
+            catch (SuperHeroNotFoundException ex)
             {
-                if (!dbHero.Powers.Any(p => p.Id == power.Id))
-                {
-                    newPowersToAdd.Add(power);
-                }
+                return BadRequest(ex.Message);
             }
-
-            //Powers to remove
-            var powersToRemove = dbHero.Powers
-                .Where(dbhp => !powers.Any(p => p.Id == dbhp.Id))
-                .ToList();
-
-            foreach (var superHeroPowerToRemove in powersToRemove)
-            {
-                dbHero.Powers.Remove(superHeroPowerToRemove);
-            }
-
-            //Add powers to dbHero
-            foreach (var powerToAdd in newPowersToAdd)
-            {
-                dbHero.Powers.Add(powerToAdd);
-            }
-
-            dbHero.Name = requestHero.Name;
-            dbHero.FirstName = requestHero.FirstName;
-            dbHero.LastName = requestHero.LastName;
-            dbHero.Place = requestHero.Place;
-            dbHero.Description = requestHero.Description;
-
-            //persist changes
-            await _context.SaveChangesAsync();
-
-            return Ok(await _context.SuperHeroes.ToListAsync());
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<List<SuperHero>>> Delete(int id)
         {
-            var hero = await _context.SuperHeroes.FindAsync(id);
-            if (hero == null)
+            try
             {
-                return BadRequest("Hero/Villan not found.");
+                var heroes = await _heroService.Delete(id);
+                return Ok(heroes);
             }
-
-            _context.SuperHeroes.Remove(hero);
-            await _context.SaveChangesAsync();
-
-            //it's OK if we don't show the powers here.
-            return Ok(await _context.SuperHeroes.ToListAsync());
+            catch (SuperHeroNotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
