@@ -12,7 +12,7 @@ namespace SuperHeroAPI.Services
             _context = context;
         }
 
-        //GET all powers.
+        //GET all powers
         public async Task<List<Power>> GetAllPowersAsync()
         {
             return await _context.Powers.ToListAsync();

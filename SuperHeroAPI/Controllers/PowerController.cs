@@ -9,12 +9,10 @@ namespace SuperHeroAPI.Controllers
     [ApiController]
     public class PowerController : ControllerBase
     {
-        private readonly DataContext _context;
         private readonly PowerService _powerService;
 
-        public PowerController(PowerService powerService, DataContext context)
+        public PowerController(PowerService powerService)
         {
-             _context = context;
             _powerService = powerService;
         }
 
