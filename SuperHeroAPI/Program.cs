@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
+    //this is to reduce circular references in JSON
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
 });
 
