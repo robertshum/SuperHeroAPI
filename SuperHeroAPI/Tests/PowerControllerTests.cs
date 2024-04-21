@@ -4,7 +4,6 @@ using SuperHeroAPI.ModelViews;
 using SuperHeroAPI.Services;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using SuperHeroAPI.Exceptions;
 
 namespace SuperHeroAPI.Tests
@@ -131,9 +130,6 @@ namespace SuperHeroAPI.Tests
         {
             var id = 1;
 
-            //info from request
-            var editPowerModeView = new EditPowerModelView { Id = 9999, Tag = "Super Duper Strength", Description = "Massively gigantic Biceps." };
-
             // Add expected powers here if needed
             var expectedPowers = new List<Power>();
 
@@ -151,9 +147,6 @@ namespace SuperHeroAPI.Tests
         public async Task DeletePower_ReturnsBadRequest_WhenDeletePowerFailed()
         {
             var id = 9999;
-
-            // Add expected powers here if needed
-            var expectedPowers = new List<Power>();
 
             _mockPowerService.Setup(service => service.Delete(id)).ThrowsAsync(new PowerNotFoundException());
 

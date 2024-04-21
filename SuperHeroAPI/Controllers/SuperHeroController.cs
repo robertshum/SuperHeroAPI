@@ -9,9 +9,9 @@ namespace SuperHeroAPI.Controllers
     [ApiController]
     public class SuperHeroController : ControllerBase
     {
-        private readonly SuperHeroService _heroService;
+        private readonly ISuperHeroService _heroService;
 
-        public SuperHeroController(SuperHeroService superHeroService)
+        public SuperHeroController(ISuperHeroService superHeroService)
         {
             _heroService = superHeroService;
         }
@@ -41,7 +41,7 @@ namespace SuperHeroAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<List<SuperHero>>> AddHero([FromBody] SuperHeroModelView heroView)
         {
-            return await _heroService.AddHero(heroView);
+            return Ok(await _heroService.AddHero(heroView));
         }
 
         [HttpPut]
