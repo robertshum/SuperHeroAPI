@@ -3,7 +3,7 @@ using SuperHeroAPI.ModelViews;
 
 namespace SuperHeroAPI.Services
 {
-    public class SuperHeroService
+    public class SuperHeroService : ISuperHeroService
     {
         private readonly DataContext _context;
 

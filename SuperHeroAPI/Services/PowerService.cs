@@ -3,7 +3,7 @@ using SuperHeroAPI.Exceptions;
 
 namespace SuperHeroAPI.Services
 {
-    public class PowerService
+    public class PowerService : IPowerService
     {
         private readonly DataContext _context;
 
