@@ -9,9 +9,9 @@ namespace SuperHeroAPI.Controllers
     [ApiController]
     public class PowerController : ControllerBase
     {
-        private readonly PowerService _powerService;
+        private readonly IPowerService _powerService;
 
-        public PowerController(PowerService powerService)
+        public PowerController(IPowerService powerService)
         {
             _powerService = powerService;
         }
@@ -26,12 +26,15 @@ namespace SuperHeroAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Power>> Get(int id)
         {
-            var power = await _powerService.GetPower(id);
-            if (power == null)
+            try
             {
-                return BadRequest("Power not found.");
+                var power = await _powerService.GetPower(id);
+                return Ok(power);
             }
-            return Ok(power);
+            catch (PowerNotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]
@@ -47,7 +50,8 @@ namespace SuperHeroAPI.Controllers
             {
                 var powers = await _powerService.Update(editPower);
                 return Ok(powers);
-            } catch (PowerNotFoundException ex) 
+            }
+            catch (PowerNotFoundException ex)
             {
                 return BadRequest(ex.Message);
             }
