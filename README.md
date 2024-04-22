@@ -64,12 +64,12 @@ Unit testing for both SuperHero and Power controllers can be found in Tests fold
 
 # Tech Stack  
 
-.Net 8.0
-EF Core
-NUnit
-Moq
-Swagger (OpenAPI)
-MySQL
+* .Net 8.0
+* EF Core
+* NUnit
+* Moq
+* Swagger (OpenAPI)
+* MySQL
 
 # License
 
