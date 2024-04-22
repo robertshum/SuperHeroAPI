@@ -19,8 +19,8 @@ builder.Services.AddDbContext<DataContext>(options =>
 });
 
 //add services context
-builder.Services.AddScoped<PowerService>();
-builder.Services.AddScoped<SuperHeroService>();
+builder.Services.AddScoped<IPowerService, PowerService>();
+builder.Services.AddScoped<ISuperHeroService, SuperHeroService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
