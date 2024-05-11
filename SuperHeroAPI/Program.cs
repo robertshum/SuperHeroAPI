@@ -71,6 +71,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(localCORSPolicy);
+app.UseCors(githubCORSPolicy);
 
 app.UseHttpsRedirection();
 
