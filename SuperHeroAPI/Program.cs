@@ -3,7 +3,7 @@ global using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using SuperHeroAPI.Services;
 
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+var MyAllowSpecificOrigins = "_origins";
 var builder = WebApplication.CreateBuilder(args);
 
 //CORS
@@ -16,6 +16,13 @@ builder.Services.AddCors(options =>
                                                   .AllowAnyHeader()
                                                   .AllowAnyMethod();
                           });
+    options.AddPolicy(MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("https://robertshum.github.io")
+                                              .AllowAnyHeader()
+                                              .AllowAnyMethod();
+                      });
 });
 
 // Add services to the container.
@@ -28,7 +35,21 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 // Add db context for sql server
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    // Load connection string from environment variable
+    string connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
+
+
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        connectionString = "Development";
+        options.UseSqlServer(builder.Configuration.GetConnectionString(connectionString));
+    }
+    // connection s tring coming from outside
+    else
+    {
+        options.UseSqlServer(connectionString);
+    }
+
 });
 
 //add services context
