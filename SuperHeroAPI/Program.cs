@@ -3,20 +3,21 @@ global using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using SuperHeroAPI.Services;
 
-var MyAllowSpecificOrigins = "_origins";
+var localCORSPolicy = "_localCorsPolicy";
+var githubCORSPolicy = "_githubCorsPolicy";
 var builder = WebApplication.CreateBuilder(args);
 
 //CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(MyAllowSpecificOrigins,
+    options.AddPolicy(localCORSPolicy,
                           policy =>
                           {
                               policy.WithOrigins("http://localhost:5173")
                                                   .AllowAnyHeader()
                                                   .AllowAnyMethod();
                           });
-    options.AddPolicy(MyAllowSpecificOrigins,
+    options.AddPolicy(githubCORSPolicy,
                       policy =>
                       {
                           policy.WithOrigins("https://robertshum.github.io")
@@ -69,7 +70,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(MyAllowSpecificOrigins);
+app.UseCors(localCORSPolicy);
 
 app.UseHttpsRedirection();
 
