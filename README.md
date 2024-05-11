@@ -25,6 +25,9 @@ Sample Power looks like this:
 }
 ```
 
+# Front-end
+This project is the back-end which requires a front-end dashboard to visualize the entities.  I have also built one and can be found here (SuperHero Dashboard): [https://github.com/robertshum/SuperHeroAPI](https://github.com/robertshum/SuperheroDashboard).  The API can still be accessed via Swagger or similar frameworks (Postman for example).
+
 # Endpoints
 
 ## Power
