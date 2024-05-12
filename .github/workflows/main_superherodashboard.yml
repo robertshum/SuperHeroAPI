@@ -47,4 +47,5 @@ jobs:
         app-name: 'superherodashboard'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_850b665c81f64749bec9d19b5c5f9224 }}
-        images: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_3f14929008d741d98b247219b03b988a }}/shumbum/superhero:${{ github.sha }}
+        images: index.docker.io/shumbum/superhero:${{ github.sha }}
+        # images: index.docker.io/${{ secrets.AzureAppService_ContainerUsername_3f14929008d741d98b247219b03b988a }}/shumbum/superhero:${{ github.sha }}
