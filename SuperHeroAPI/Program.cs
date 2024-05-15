@@ -45,6 +45,9 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 });
 
+//add health check
+builder.Services.AddHealthChecks();
+
 //add services context
 builder.Services.AddScoped<IPowerService, PowerService>();
 builder.Services.AddScoped<ISuperHeroService, SuperHeroService>();
@@ -67,6 +70,8 @@ app.UseCors(corsPolicy);
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.MapHealthChecks("/healthz");
 
 app.MapControllers();
 
