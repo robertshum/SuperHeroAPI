@@ -3,8 +3,60 @@ global using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using SuperHeroAPI.Services;
 
+//Auth
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using Microsoft.Extensions.Options;
+
 var corsPolicy = "_corsPolicy";
 var builder = WebApplication.CreateBuilder(args);
+
+//Configure JWT Auth
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x =>
+{
+    //Set auth to clerk's domain
+    // Authority is the URL of your clerk instance
+    string clerkAuthString = Environment.GetEnvironmentVariable("ClerkAuthority");
+
+    if (string.IsNullOrEmpty(clerkAuthString))
+    {
+        clerkAuthString = builder.Configuration["ClerkAuthority"];
+    }
+
+    x.Authority = clerkAuthString;
+    x.TokenValidationParameters = new TokenValidationParameters()
+    {
+        //disable audience validation if not needed
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        NameClaimType = ClaimTypes.NameIdentifier,
+    };
+    x.Events = new JwtBearerEvents()
+    {
+        OnTokenValidated = context =>
+        {
+
+            string clerkAuthPartyString = Environment.GetEnvironmentVariable("ClerkAuthorizedParty");
+
+            if (string.IsNullOrEmpty(clerkAuthPartyString))
+            {
+                clerkAuthPartyString = builder.Configuration["ClerkAuthorizedParty"];
+            }
+
+            var azp = context.Principal?.FindFirstValue("azp");
+
+            // AuthorizedParty is the base URL of your frontend.
+            if (string.IsNullOrEmpty(azp) || !azp.Equals(clerkAuthPartyString))
+            {
+                context.Fail("AZP Claim is invalid/missing");
+                Console.WriteLine("AZP Claim is invalid/missing");
+            }
+            Console.WriteLine("completed");
+            return Task.CompletedTask;
+        }
+    };
+});
 
 //CORS
 builder.Services.AddCors(options =>
@@ -70,6 +122,8 @@ app.UseCors(corsPolicy);
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseAuthentication();
 
 app.MapHealthChecks("/healthz");
 
