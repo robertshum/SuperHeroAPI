@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using MethodTimer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SuperHeroAPI.Exceptions;
@@ -19,6 +20,7 @@ namespace SuperHeroAPI.Controllers
         }
 
         [HttpGet]
+        [Time("GET all Powers")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<Power>>> Get()
         {
@@ -27,6 +29,7 @@ namespace SuperHeroAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Time("GET Power of Id {id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<Power>> Get(int id)
         {
@@ -42,6 +45,7 @@ namespace SuperHeroAPI.Controllers
         }
 
         [HttpPost]
+        [Time("POST Power")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<Power>>> AddPower([FromBody] PowerModelView powerModelView)
         {
@@ -49,6 +53,7 @@ namespace SuperHeroAPI.Controllers
         }
 
         [HttpPut]
+        [Time("PUT Power")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<Power>>> Update([FromBody] EditPowerModelView editPower)
         {
@@ -64,6 +69,7 @@ namespace SuperHeroAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Time("DELETE Power of Id {id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<Power>>> Delete(int id)
         {
