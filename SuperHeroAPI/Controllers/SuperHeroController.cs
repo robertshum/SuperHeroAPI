@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using MethodTimer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SuperHeroAPI.Exceptions;
@@ -19,6 +20,7 @@ namespace SuperHeroAPI.Controllers
         }
 
         [HttpGet]
+        [Time("GET All Heroes")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         //Must return a specific type and not a interface
         public async Task<ActionResult<List<SuperHero>>> Get()
@@ -27,6 +29,7 @@ namespace SuperHeroAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Time("GET Hero of Id {id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         //Must return a specific type and not a interface
         public async Task<ActionResult<SuperHero>> Get(int id)
@@ -43,6 +46,7 @@ namespace SuperHeroAPI.Controllers
         }
 
         [HttpPost]
+        [Time("POST Hero")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<SuperHero>>> AddHero([FromBody] SuperHeroModelView heroView)
         {
@@ -50,6 +54,7 @@ namespace SuperHeroAPI.Controllers
         }
 
         [HttpPut]
+        [Time("PUT Hero")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<SuperHero>>> UpdateHero([FromBody] EditSuperHeroModelView requestHero)
         {
@@ -65,6 +70,7 @@ namespace SuperHeroAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Time("DELETE Hero of Id {id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<SuperHero>>> Delete(int id)
         {

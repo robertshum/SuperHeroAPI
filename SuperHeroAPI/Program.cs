@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
+using SuperHeroAPI.MethodMeasure;
 
 var corsPolicy = "_corsPolicy";
 var builder = WebApplication.CreateBuilder(args);
@@ -110,6 +111,11 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// After build of app:
+
+//logger
+MethodTimeLogger.Logger = app.Logger;
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -117,13 +123,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(corsPolicy);
-
-app.UseHttpsRedirection();
+app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseAuthentication();
+app.UseCors(corsPolicy);
+
+app.UseHttpsRedirection();
 
 app.MapHealthChecks("/healthz");
 
