@@ -5,7 +5,6 @@ using SuperHeroAPI.Services;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
 using SuperHeroAPI.Exceptions;
-using StackExchange.Redis;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace SuperHeroAPI.Tests
@@ -17,15 +16,6 @@ namespace SuperHeroAPI.Tests
         private Mock<IDistributedCache> _mockRedisConnection;
         private Mock<ILogger<PowerController>> _mockLogger;
         private PowerController _powerController;
-
-        //Unused - Making linter happy for null checks
-        public PowerControllerTests(Mock<IPowerService> mockPowerService, Mock<IDistributedCache> mockRedisConnection, Mock<ILogger<PowerController>> mockLogger, PowerController powerController)
-        {
-            _mockPowerService = mockPowerService;
-            _mockRedisConnection = mockRedisConnection;
-            _mockLogger = mockLogger;
-            _powerController = powerController;
-        }
 
         [SetUp]
         public void Setup()
@@ -40,6 +30,7 @@ namespace SuperHeroAPI.Tests
         [Test]
         public async Task GetPowers_ReturnsOkResult_WhenGetPowersSuccess()
         {
+
             // Add expected powers here if needed
             var expectedPowers = new List<Power>();
 
