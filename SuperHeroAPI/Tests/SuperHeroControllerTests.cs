@@ -14,6 +14,13 @@ namespace SuperHeroAPI.Tests
         private Mock<ISuperHeroService> _mockSuperHeroService;
         private SuperHeroController _superHeroController;
 
+        //Unused - Making linter happy for null checks
+        public SuperHeroControllerTests(Mock<ISuperHeroService> mockSuperHeroService, SuperHeroController superHeroController)
+        {
+            _mockSuperHeroService = mockSuperHeroService;
+            _superHeroController = superHeroController;
+        }
+
         [SetUp]
         public void Setup()
         {
