@@ -5,6 +5,7 @@ using SuperHeroAPI.Services;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
 using SuperHeroAPI.Exceptions;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace SuperHeroAPI.Tests
 {
@@ -12,6 +13,8 @@ namespace SuperHeroAPI.Tests
     public class PowerControllerTests
     {
         private Mock<IPowerService> _mockPowerService;
+        private Mock<IDistributedCache> _mockRedisConnection;
+        private Mock<ILogger<PowerController>> _mockLogger;
         private PowerController _powerController;
 
         [SetUp]
@@ -19,7 +22,9 @@ namespace SuperHeroAPI.Tests
         {
             //mock data context and service
             _mockPowerService = new Mock<IPowerService>();
-            _powerController = new PowerController(_mockPowerService.Object);
+            _mockRedisConnection = new Mock<IDistributedCache>();
+            _mockLogger = new Mock<ILogger<PowerController>>();
+            _powerController = new PowerController(_mockPowerService.Object, _mockRedisConnection.Object, _mockLogger.Object);
         }
 
         [Test]

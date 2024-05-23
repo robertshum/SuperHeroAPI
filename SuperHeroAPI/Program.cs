@@ -7,7 +7,6 @@ using SuperHeroAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
-using Microsoft.Extensions.Options;
 using SuperHeroAPI.MethodMeasure;
 
 var corsPolicy = "_corsPolicy";
@@ -18,7 +17,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 {
     //Set auth to clerk's domain
     // Authority is the URL of your clerk instance
-    string clerkAuthString = Environment.GetEnvironmentVariable("ClerkAuthority");
+    string? clerkAuthString = Environment.GetEnvironmentVariable("ClerkAuthority");
 
     if (string.IsNullOrEmpty(clerkAuthString))
     {
@@ -38,7 +37,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         OnTokenValidated = context =>
         {
 
-            string clerkAuthPartyString = Environment.GetEnvironmentVariable("ClerkAuthorizedParty");
+            string? clerkAuthPartyString = Environment.GetEnvironmentVariable("ClerkAuthorizedParty");
 
             if (string.IsNullOrEmpty(clerkAuthPartyString))
             {
@@ -57,6 +56,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
             return Task.CompletedTask;
         }
     };
+});
+
+//Redis Connection
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    string? myRedisConStr = Environment.GetEnvironmentVariable("MyRedisConStr");
+    if (string.IsNullOrEmpty(myRedisConStr))
+    {
+        myRedisConStr = builder.Configuration["MyRedisConStr"];
+    }
+    options.Configuration = myRedisConStr;
+    options.InstanceName = "SingleRedisInstance";
 });
 
 //CORS
@@ -82,7 +93,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddDbContext<DataContext>(options =>
 {
     // Load connection string from environment variable
-    string connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
+    string? connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
 
 
     if (string.IsNullOrEmpty(connectionString))

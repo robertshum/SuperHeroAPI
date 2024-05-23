@@ -2,9 +2,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using StackExchange.Redis;
 using SuperHeroAPI.Exceptions;
 using SuperHeroAPI.ModelViews;
 using SuperHeroAPI.Services;
+using System.Text.Json;
 
 namespace SuperHeroAPI.Controllers
 {
@@ -13,10 +16,16 @@ namespace SuperHeroAPI.Controllers
     public class SuperHeroController : ControllerBase
     {
         private readonly ISuperHeroService _heroService;
+        private readonly IDistributedCache _cache;
+        private readonly ILogger<SuperHeroController> _logger;
 
-        public SuperHeroController(ISuperHeroService superHeroService)
+        private readonly string CACHE_ALL_HEROES = "all_heroes";
+
+        public SuperHeroController(ISuperHeroService superHeroService, IDistributedCache cache, ILogger<SuperHeroController> logger)
         {
             _heroService = superHeroService;
+            _cache = cache;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -25,7 +34,47 @@ namespace SuperHeroAPI.Controllers
         //Must return a specific type and not a interface
         public async Task<ActionResult<List<SuperHero>>> Get()
         {
-            return Ok(await _heroService.GetAllSuperHeroesAsync());
+            try
+            {
+                // Try to get the cached powers from Redis
+                var cachedHeroes = await _cache.GetStringAsync(CACHE_ALL_HEROES);
+                if (!string.IsNullOrEmpty(cachedHeroes))
+                {
+                    _logger.LogInformation("Returning cached heroes.");
+                    var cachedHeroesJson = JsonSerializer.Deserialize<List<SuperHero>>(cachedHeroes);
+                    return Ok(cachedHeroesJson);
+                }
+            }
+            catch (RedisConnectionException rcex)
+            {
+                _logger.LogError(rcex, "Redis server is down. Fetching data from database.");
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while accessing Redis.");
+            }
+
+            var heroes = await _heroService.GetAllSuperHeroesAsync();
+
+            try
+            {
+                //...now we attempt to cache it
+                var serializedHeroes = JsonSerializer.Serialize(heroes);
+                await _cache.SetStringAsync(CACHE_ALL_HEROES, serializedHeroes);
+
+            }
+            catch (RedisConnectionException rcex)
+            {
+                _logger.LogError(rcex, "Redis server is down. Could not cache results.");
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while accessing Redis.");
+            }
+
+            return Ok(heroes);
         }
 
         [HttpGet("{id}")]
@@ -50,7 +99,32 @@ namespace SuperHeroAPI.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<SuperHero>>> AddHero([FromBody] SuperHeroModelView heroView)
         {
-            return Ok(await _heroService.AddHero(heroView));
+            var heroes = new List<SuperHero>();
+
+            try
+            {
+                heroes = await _heroService.AddHero(heroView);
+
+                //...now we attempt to cache it
+                var serializedHeroes = JsonSerializer.Serialize(heroes);
+                await _cache.SetStringAsync(CACHE_ALL_HEROES, serializedHeroes);
+                return Ok(heroes);
+            }
+            catch (RedisConnectionException rcex)
+            {
+                _logger.LogError(rcex, "Redis server is down. Could not cache results.");
+
+                //return what we have without cache
+                return Ok(heroes);
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "A system error has occured.");
+
+                //return what we have without cache, potentially empty list
+                return Ok(heroes);
+            }
         }
 
         [HttpPut]
@@ -58,14 +132,35 @@ namespace SuperHeroAPI.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<SuperHero>>> UpdateHero([FromBody] EditSuperHeroModelView requestHero)
         {
+            var heroes = new List<SuperHero>();
+
             try
             {
-                var heroes = await _heroService.UpdateHero(requestHero);
+                heroes = await _heroService.UpdateHero(requestHero);
+
+                //...now we attempt to cache it
+                var serializedHeroes = JsonSerializer.Serialize(heroes);
+                await _cache.SetStringAsync(CACHE_ALL_HEROES, serializedHeroes);
                 return Ok(heroes);
             }
             catch (SuperHeroNotFoundException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (RedisConnectionException rcex)
+            {
+                _logger.LogError(rcex, "Redis server is down. Could not cache results.");
+
+                //return what we have without cache
+                return Ok(heroes);
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "A system error has occured.");
+
+                //return what we have without cache, potentially empty list
+                return Ok(heroes);
             }
         }
 
@@ -74,14 +169,35 @@ namespace SuperHeroAPI.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<List<SuperHero>>> Delete(int id)
         {
+            var heroes = new List<SuperHero>();
+
             try
             {
-                var heroes = await _heroService.Delete(id);
+                heroes = await _heroService.Delete(id);
+
+                //...now we attempt to cache it
+                var serializedHeroes = JsonSerializer.Serialize(heroes);
+                await _cache.SetStringAsync(CACHE_ALL_HEROES, serializedHeroes);
                 return Ok(heroes);
             }
             catch (SuperHeroNotFoundException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (RedisConnectionException rcex)
+            {
+                _logger.LogError(rcex, "Redis server is down. Could not cache results.");
+
+                //return what we have without cache
+                return Ok(heroes);
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "A system error has occured.");
+
+                //return what we have without cache, potentially empty list
+                return Ok(heroes);
             }
         }
     }
