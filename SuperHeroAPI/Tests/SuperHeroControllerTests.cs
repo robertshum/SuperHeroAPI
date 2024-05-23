@@ -5,6 +5,7 @@ using SuperHeroAPI.Services;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
 using SuperHeroAPI.Exceptions;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace SuperHeroAPI.Tests
 {
@@ -12,21 +13,18 @@ namespace SuperHeroAPI.Tests
     public class SuperHeroControllerTests
     {
         private Mock<ISuperHeroService> _mockSuperHeroService;
+        private Mock<IDistributedCache> _mockRedisConnection;
+        private Mock<ILogger<SuperHeroController>> _mockLogger;
         private SuperHeroController _superHeroController;
-
-        //Unused - Making linter happy for null checks
-        public SuperHeroControllerTests(Mock<ISuperHeroService> mockSuperHeroService, SuperHeroController superHeroController)
-        {
-            _mockSuperHeroService = mockSuperHeroService;
-            _superHeroController = superHeroController;
-        }
 
         [SetUp]
         public void Setup()
         {
             //mock data context and service
             _mockSuperHeroService = new Mock<ISuperHeroService>();
-            _superHeroController = new SuperHeroController(_mockSuperHeroService.Object);
+            _mockRedisConnection = new Mock<IDistributedCache>();
+            _mockLogger = new Mock<ILogger<SuperHeroController>>();
+            _superHeroController = new SuperHeroController(_mockSuperHeroService.Object, _mockRedisConnection.Object, _mockLogger.Object);
         }
 
         [Test]

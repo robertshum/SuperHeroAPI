@@ -30,7 +30,6 @@ namespace SuperHeroAPI.Tests
         [Test]
         public async Task GetPowers_ReturnsOkResult_WhenGetPowersSuccess()
         {
-
             // Add expected powers here if needed
             var expectedPowers = new List<Power>();
 
