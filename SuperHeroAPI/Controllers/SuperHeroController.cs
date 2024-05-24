@@ -41,7 +41,13 @@ namespace SuperHeroAPI.Controllers
                 if (!string.IsNullOrEmpty(cachedHeroes))
                 {
                     _logger.LogInformation("Returning cached heroes.");
-                    var cachedHeroesJson = JsonSerializer.Deserialize<List<SuperHero>>(cachedHeroes);
+
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    var cachedHeroesJson = JsonSerializer.Deserialize<List<SuperHero>>(cachedHeroes, options);
+
                     return Ok(cachedHeroesJson);
                 }
             }
