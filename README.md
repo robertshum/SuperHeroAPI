@@ -25,8 +25,15 @@ Sample Power looks like this:
 }
 ```
 
+# Additional Features
+
+- Implemented server side caching using Redis, to offload work from the database for common queries.
+- JWT Authentication, to validate requests from front-end.
+- Simple performance monitoring of controllers (elapsed time).
+- Unit tests.
+
 # Front-end
-This project is the back-end which requires a front-end dashboard to visualize the entities.  I have also built one and can be found here (SuperHero Dashboard): [https://github.com/robertshum/SuperHeroAPI](https://github.com/robertshum/SuperheroDashboard).  The API can still be accessed via Swagger or similar frameworks (Postman for example).
+This project is the back-end which requires a front-end dashboard to visualize the entities.  I have also built one and can be found here (SuperHero Dashboard): [https://github.com/robertshum/SuperHeroDashboard](https://github.com/robertshum/SuperheroDashboard).  The API can still be accessed via Swagger or similar frameworks (Postman for example).
 
 # Endpoints
 
@@ -73,6 +80,7 @@ Unit testing for both SuperHero and Power controllers can be found in Tests fold
 * Moq
 * Swagger (OpenAPI)
 * MySQL
+* Redis
 
 # License
 
